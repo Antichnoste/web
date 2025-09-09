@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторная работа №1</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Это издевальтество так подключать стили-->
+    <style></style>
+</head>
+<body>
+    <div class="header">
+        <h1>Караганов Павел Эдуардович</h1>
+        <p>Группа: P3210 | Вариант №466113 </p>
+    </div>
+
+<div class="container">
+        <div class="coordinates-info">
+            <h3>Информация о координатах:</h3>
+            <p><strong>X:</strong> Кнопки с предустановленными значениями</p>
+            <p><strong>Y:</strong> Текстовое поле (диапазон: -3 до 5)</p>
+            <p><strong>R:</strong> Текстовое поле (диапазон: 1 до 4)</p>
+        </div>
+
+        <div class="table-layout">
+            <div class="table-row">
+                <div class="table-cell">
+                    <form id="geometryForm" method="POST">
+                        <div class="form-group">
+                            <label>Координата X:</label>
+                            <div class="radio-group">
+                                <input type="radio" id="x-2" name="x" value="-2" required>
+                                <label for="x-2">-2</label>
+                                
+                                <input type="radio" id="x-1.5" name="x" value="-1.5">
+                                <label for="x-1.5">-1.5</label>
+                                
+                                <input type="radio" id="x-1" name="x" value="-1">
+                                <label for="x-1">-1</label>
+                                
+                                <input type="radio" id="x-0.5" name="x" value="-0.5">
+                                <label for="x-0.5">-0.5</label>
+                                
+                                <input type="radio" id="x0" name="x" value="0">
+                                <label for="x0">0</label>
+                                
+                                <input type="radio" id="x0.5" name="x" value="0.5">
+                                <label for="x0.5">0.5</label>
+                                
+                                <input type="radio" id="x1" name="x" value="1">
+                                <label for="x1">1</label>
+                                
+                                <input type="radio" id="x1.5" name="x" value="1.5">
+                                <label for="x1.5">1.5</label>
+                                
+                                <input type="radio" id="x2" name="x" value="2">
+                                <label for="x2">2</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="y">Координата Y (-3 до 5):</label>
+                            <input type="text" id="y" name="y" placeholder="Введите Y" required>
+                        </div>
+
+        <div class="form-group">
+                            <label for="r">Радиус R (1 до 4):</label>
+                            <input type="text" id="r" name="r" placeholder="Введите R" required>
+                        </div>
+
+                        <button type="submit">Проверить попадание</button>
+                    </form>
+                </div>
+                
+                <div class="table-cell">
+                    <div class="canvas-container">
+                        <canvas id="geometryCanvas" width="500" height="500"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div id="result"></div>
+</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
