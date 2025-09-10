@@ -16,6 +16,15 @@
     </div>
 
 <div class="container">
+        <!--<div class="coordinates-info">
+            <h3>Информация о координатах:</h3>
+            <p><strong>X:</strong> Кнопки с предустановленными значениями</p>
+            <p><strong>Y:</strong> Текстовое поле (диапазон: -3 до 5)</p>
+            <p><strong>R:</strong> Текстовое поле (диапазон: 1 до 4)</p>
+        </div>-->
+
+        <div id="result" class="result"></div>
+
         <div class="table-layout">
             <div class="table-row">
                 <div class="table-cell">
@@ -53,13 +62,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="y">Координата Y (-3 до 5):</label>
-                            <input type="text" id="y" name="y" placeholder="Введите Y" required>
+                            <label for="y">Координата Y (от -3 до 5):</label>
+                            <input type="text" id="y" name="y" placeholder="Введите Y" inputmode="numeric" pattern="-?[0-9]*" required>
                         </div>
 
         <div class="form-group">
-                            <label for="r">Радиус R (1 до 4):</label>
-                            <input type="text" id="r" name="r" placeholder="Введите R" required>
+                            <label for="r">Радиус R (от 1 до 4):</label>
+                            <input type="text" id="r" name="r" placeholder="Введите R" inputmode="numeric" pattern="[0-9]*" required>
                         </div>
 
                         <button type="submit">Проверить попадание</button>
@@ -87,8 +96,6 @@
             </tr>
         </table>
     </section>
-
-    
 </div>
 
     <script src="script.js"></script>

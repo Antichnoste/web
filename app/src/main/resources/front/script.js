@@ -24,6 +24,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // Добавление интерактивности - обновление графика при изменении R
     const rInput = document.getElementById('r');
     const yInput = document.getElementById('y');
+
+    // Санитайзеры для целых чисел
+    function sanitizeToDigits(el) {
+        const digitsOnly = el.value.replace(/\D+/g, '');
+        if (el.value !== digitsOnly) el.value = digitsOnly;
+    }
+    function sanitizeToSignedInteger(el) {
+        const raw = el.value;
+        if (raw.startsWith('-')) {
+            el.value = '-' + raw.slice(1).replace(/\D+/g, '');
+        } else {
+            el.value = raw.replace(/\D+/g, '');
+        }
+    }
+
+    // Блокировка неподходящих символов при вводе
+    ['keydown', 'beforeinput'].forEach(evt => {
+        // Для Y: разрешаем один ведущий минус
+        yInput.addEventListener(evt, function(e) {
+            const blocked = ['+', 'e', 'E', '.', ',', ' '];
+            if (blocked.includes(e.key)) {
+                e.preventDefault();
+                return;
+            }
+            if (e.key === '-') {
+                const pos = this.selectionStart;
+                if (pos !== 0 || this.value.includes('-')) {
+                    e.preventDefault();
+                }
+            }
+        });
+        // Для R: только цифры
+        rInput.addEventListener(evt, function(e) {
+            const blocked = ['-', '+', 'e', 'E', '.', ',', ' '];
+            if (blocked.includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Очистка строки после ввода/вставки
+    yInput.addEventListener('input', function() { sanitizeToSignedInteger(this); });
+    rInput.addEventListener('input', function() { sanitizeToDigits(this); });
+    yInput.addEventListener('paste', function() { setTimeout(() => sanitizeToSignedInteger(this), 0); });
+    rInput.addEventListener('paste', function() { setTimeout(() => sanitizeToDigits(this), 0); });
     const xRadios = document.querySelectorAll('input[name="x"]');
 
     // Обновление графика при изменении R
@@ -120,15 +165,15 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // Проверка Y (диапазон -3 до 5)
-        if (isNaN(y) || y < -3 || y > 5) {
-            errorMessage += 'Y должно быть числом в диапазоне от -3 до 5<br>';
+        // Проверка Y: только целые числа в диапазоне -3..5
+        if (!Number.isInteger(y) || y < -3 || y > 5) {
+            errorMessage += 'Y должно быть целым числом в диапазоне от -3 до 5<br>';
             isValid = false;
         }
 
-        // Проверка R (диапазон 1 до 4)
-        if (isNaN(r) || r < 1 || r > 4) {
-            errorMessage += 'R должно быть числом в диапазоне от 1 до 4<br>';
+        // Проверка R: только целые числа 1..4
+        if (!Number.isInteger(r) || r < 1 || r > 4) {
+            errorMessage += 'R должно быть целым числом в диапазоне от 1 до 4<br>';
             isValid = false;
         }
 
