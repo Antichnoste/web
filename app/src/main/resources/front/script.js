@@ -5,8 +5,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const canvas = document.getElementById('geometryCanvas');
     const ctx = canvas.getContext('2d');
     const resultsTable = document.getElementById('result-table');
+    const STORAGE_KEY = 'resultsTableData';
+    const FORM_KEY = 'geometryFormState';
+    let attemptCounter = 0;
+    let persistedResults = loadResultsFromStorage();
 
-    // Инициализация canvas
+    // Восстановление таблицы из localStorage
+    if (Array.isArray(persistedResults) && resultsTable) {
+        renderResultsTable(persistedResults);
+        attemptCounter = persistedResults.length;
+    } else {
+        persistedResults = [];
+    }
+
+    // Инициализация canvas (будет перерисовано после восстановления состояния)
     drawGeometry(ctx, canvas.width, canvas.height, 4);
 
     // Добавление интерактивности - обновление графика при изменении R
@@ -20,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isNaN(r) && r >= 1 && r <= 4) {
             drawGeometry(ctx, canvas.width, canvas.height, r);
         }
+        persistFormState();
     });
 
     // Обновление графика при изменении Y
@@ -33,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const isHit = checkHit(x, y, r);
             drawGeometry(ctx, canvas.width, canvas.height, r, x, y, isHit);
         }
+        persistFormState();
     });
 
     // Обновление графика при изменении X
@@ -46,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const isHit = checkHit(x, y, r);
                 drawGeometry(ctx, canvas.width, canvas.height, r, x, y, isHit);
             }
+            persistFormState();
         });
     });
 
@@ -73,10 +88,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Добавление результата в таблицу
         const currentTime = new Date().toLocaleString();
-        addResultRow(x, y, r, currentTime, endTime - startTime, isHit);
-
-        // Показать текстовый результат
-        // showResult(isHit);
+        attemptCounter += 1;
+        addResultRow(attemptCounter, x, y, r, endTime - startTime, currentTime, isHit);
+        // Сохранение результата в localStorage
+        const entry = {
+            attempt: attemptCounter,
+            x,
+            y,
+            r,
+            executionTimeMs: typeof (endTime - startTime) === 'number' ? Number((endTime - startTime).toFixed(2)) : (endTime - startTime),
+            time: currentTime,
+            result: isHit ? 'Попал' : 'Промазал'
+        };
+        persistedResults.push(entry);
+        saveResultsToStorage(persistedResults);
+        persistFormState();
 
         // Отправка данных на сервер
         sendToServer(x, y, r, isHit);
@@ -168,13 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Отображение ошибок
     function showError(message) {
         resultDiv.innerHTML = '<div class="error">' + message + '</div>';
-    }
-
-    // Отображение результата
-    function showResult(isHit) {
-        const message = isHit ? 'Попадание!' : 'Промах!';
-        const className = isHit ? 'success' : 'error';
-        resultDiv.innerHTML = '<div class="' + className + '">' + message + '</div>';
     }
 
     // Рисование геометрической области с улучшенной графикой
@@ -415,36 +434,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Рисование подписей и меток
     function drawLabels(ctx, centerX, centerY, scaledR, r, scale) {
-        // Подпись R
-        // ctx.fillStyle = '#f39c12';
-        // ctx.font = 'bold 16px Arial';
-        // ctx.textAlign = 'center';
-        // ctx.fillText(`R = ${r}`, centerX + 30, centerY - scaledR - 10);
-        
         // Подписи значений на осях
         ctx.font = '10px Arial';
         ctx.fillStyle = '#e0e0e0';
         ctx.textAlign = 'center';
-        
-        // Подписи на оси X
-        // for (let i = -4; i <= 4; i++) {
-        //     if (i !== 0) {
-        //         const x = centerX + i * scale;
-        //         if (x > 20 && x < 480) {
-        //             ctx.fillText(i.toString(), x, centerY + 15);
-        //         }
-        //     }
-        // }
-        
-        //Подписи на оси Y
-        // for (let i = -4; i <= 4; i++) {
-        //     if (i !== 0) {
-        //         const y = centerY + i * scale;
-        //         if (y > 20 && y < 480) {
-        //             ctx.fillText((-i).toString(), centerX - 15, y + 3);
-        //         }
-        //     }
-        // }
         
         // Подписи R/2, R на осях
         ctx.fillStyle = '#f39c12';
@@ -464,16 +457,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Добавление строки в таблицу результатов
-    function addResultRow(x, y, r, currentTime, executionTimeMs, isHit) {
+    function addResultRow(attempt, x, y, r, executionTimeMs, currentTime, isHit) {
         if (!resultsTable) return;
         const row = document.createElement('tr');
         const values = [
+            attempt,
             x,
             y,
             r,
-            currentTime,
             `${typeof executionTimeMs === 'number' ? executionTimeMs.toFixed(2) : executionTimeMs} ms`,
-            isHit ? 'Попадание' : 'Промах'
+            currentTime,
+            isHit ? 'Попал' : 'Промазал'
         ];
         values.forEach(value => {
             const td = document.createElement('td');
@@ -482,4 +476,77 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         resultsTable.appendChild(row);
     }
+
+    // Рендер таблицы из массива записей
+    function renderResultsTable(entries) {
+        // Удаляем все строки кроме заголовка
+        while (resultsTable.rows.length > 1) {
+            resultsTable.deleteRow(1);
+        }
+        entries.forEach(e => {
+            addResultRow(e.attempt, e.x, e.y, e.r, e.executionTimeMs, e.time, e.result === 'Попал');
+        });
+    }
+
+    // Работа с localStorage
+    function loadResultsFromStorage() {
+        localStorage.clear();
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return [];
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+            return [];
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function saveResultsToStorage(entries) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        } catch (_) {
+            // ignore quota or serialization errors silently
+        }
+    }
+
+    // Сохранение и восстановление состояния формы и рисунка
+    function persistFormState() {
+        try {
+            const selectedX = document.querySelector('input[name="x"]:checked');
+            const x = selectedX ? selectedX.value : null;
+            const y = yInput.value;
+            const r = rInput.value;
+            const state = { x, y, r };
+            localStorage.setItem(FORM_KEY, JSON.stringify(state));
+        } catch (_) { /* ignore */ }
+    }
+
+    (function restoreFormStateAndRedraw() {
+        try {
+            const raw = localStorage.getItem(FORM_KEY);
+            if (!raw) return;
+            const state = JSON.parse(raw);
+            if (!state) return;
+            if (typeof state.y === 'string') {
+                yInput.value = state.y;
+            }
+            if (typeof state.r === 'string') {
+                rInput.value = state.r;
+            }
+            if (typeof state.x === 'string') {
+                const radio = document.querySelector('input[name="x"][value="' + state.x + '"]');
+                if (radio) radio.checked = true;
+            }
+            const xVal = state.x != null ? parseFloat(state.x) : undefined;
+            const yVal = state.y != null ? parseFloat(state.y) : undefined;
+            const rVal = state.r != null ? parseFloat(state.r) : undefined;
+            if (!isNaN(rVal)) {
+                const hit = (!isNaN(xVal) && !isNaN(yVal)) ? checkHit(xVal, yVal, rVal) : undefined;
+                drawGeometry(ctx, canvas.width, canvas.height, rVal, xVal, yVal, hit);
+            }
+        } catch (_) {
+            // ignore
+        }
+    })();
 });

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Лабораторная работа №1</title>
+    <link rel="stylesheet" href="reset.css">
     <link rel="stylesheet" href="style.css">
     <!-- Это издевальтество так подключать стили-->
     <style></style>
@@ -15,13 +16,6 @@
     </div>
 
 <div class="container">
-        <div class="coordinates-info">
-            <h3>Информация о координатах:</h3>
-            <p><strong>X:</strong> Кнопки с предустановленными значениями</p>
-            <p><strong>Y:</strong> Текстовое поле (диапазон: -3 до 5)</p>
-            <p><strong>R:</strong> Текстовое поле (диапазон: 1 до 4)</p>
-        </div>
-
         <div class="table-layout">
             <div class="table-row">
                 <div class="table-cell">
@@ -80,7 +74,21 @@
             </div>
         </div>
 
-    <div id="result"></div>
+    <section class="result_table">
+        <table id="result-table">
+            <tr>
+                <th>#</th>
+                <th>x</th>
+                <th>y</th>
+                <th>r</th>
+                <th>execution time</th>
+                <th>time</th>
+                <th>result</th>
+            </tr>
+        </table>
+    </section>
+
+    
 </div>
 
     <script src="script.js"></script>
