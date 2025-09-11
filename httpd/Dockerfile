@@ -8,4 +8,7 @@ RUN git clone https://github.com/FastCGI-Archives/mod_fastcgi.git /mod_fastcgi &
 
 RUN mkdir /usr/local/apache2/fcgi-bin
 
-COPY httpd.conf /usr/local/apache2/conf/httpd.conf
+COPY httpd/httpd.conf /usr/local/apache2/conf/httpd.conf
+
+# Копируем статические файлы фронтенда
+COPY app/src/main/resources/front/ /usr/local/apache2/htdocs/

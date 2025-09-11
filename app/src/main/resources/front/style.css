@@ -127,18 +127,9 @@ input[type="text"] {
     border-radius: 8px;
     font-size: 16px;
     transition: border-color 0.2s ease, background-color 0.2s ease;
-    background-color: #2d3748;
     color: #e0e0e0;
-}
-
-input[type="text"]:invalid {
-    border-color: #e53e3e;
-    background-color: #2d1b1b;
-}
-
-input[type="text"]:valid {
-    border-color: #38a169;
-    background-color: #1a2e1a;
+    border-color: #f39c12;
+    background: #2d3748;
 }
 
 input[type="radio"] {
@@ -170,8 +161,6 @@ canvas {
     background-color: #1a202c;
     margin: 0 auto;
 }
-
-/* Упрощён без эффектов наведения для canvas */
 
 button {
     width: 100%;
@@ -208,33 +197,13 @@ button {
 }
 
 .success {
-    color: #51cf66;
+    color: #1fc630;
     background-color: #2d3d2d;
     padding: 15px;
     border-radius: 12px;
     margin-bottom: 15px;
     border: 2px solid #38a169;
 }
-
-/*.coordinates-info {
-    background-color: #2c3e50;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    border-left: 5px solid #f39c12;
-}
-
-.coordinates-info h3 {
-    color: #f39c12;
-    margin-bottom: 15px;
-    font-size: 18px;
-}
-
-.coordinates-info p {
-    margin: 8px 0;
-    color: #e0e0e0;
-    font-size: 14px;
-}*/
 
 /* Таблица результатов под графиком */
 .result_table {

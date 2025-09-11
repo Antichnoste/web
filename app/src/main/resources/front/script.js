@@ -1,116 +1,61 @@
-// JavaScript валидация и функциональность для геометрического калькулятора
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('geometryForm');
     const resultDiv = document.getElementById('result');
     const canvas = document.getElementById('geometryCanvas');
     const ctx = canvas.getContext('2d');
     const resultsTable = document.getElementById('result-table');
-    const STORAGE_KEY = 'resultsTableData';
-    const FORM_KEY = 'geometryFormState';
     let attemptCounter = 0;
-    let persistedResults = loadResultsFromStorage();
 
-    // Восстановление таблицы из localStorage
-    if (Array.isArray(persistedResults) && resultsTable) {
-        renderResultsTable(persistedResults);
-        attemptCounter = persistedResults.length;
-    } else {
-        persistedResults = [];
-    }
-
-    // Инициализация canvas (будет перерисовано после восстановления состояния)
+    // Инициализация canvas
     drawGeometry(ctx, canvas.width, canvas.height, 4);
 
     // Добавление интерактивности - обновление графика при изменении R
     const rInput = document.getElementById('r');
     const yInput = document.getElementById('y');
-
-    // Санитайзеры для целых чисел
-    function sanitizeToDigits(el) {
-        const digitsOnly = el.value.replace(/\D+/g, '');
-        if (el.value !== digitsOnly) el.value = digitsOnly;
-    }
-    function sanitizeToSignedInteger(el) {
-        const raw = el.value;
-        if (raw.startsWith('-')) {
-            el.value = '-' + raw.slice(1).replace(/\D+/g, '');
-        } else {
-            el.value = raw.replace(/\D+/g, '');
-        }
-    }
-
-    // Блокировка неподходящих символов при вводе
-    ['keydown', 'beforeinput'].forEach(evt => {
-        // Для Y: разрешаем один ведущий минус
-        yInput.addEventListener(evt, function(e) {
-            const blocked = ['+', 'e', 'E', '.', ',', ' '];
-            if (blocked.includes(e.key)) {
-                e.preventDefault();
-                return;
-            }
-            if (e.key === '-') {
-                const pos = this.selectionStart;
-                if (pos !== 0 || this.value.includes('-')) {
-                    e.preventDefault();
-                }
-            }
-        });
-        // Для R: только цифры
-        rInput.addEventListener(evt, function(e) {
-            const blocked = ['-', '+', 'e', 'E', '.', ',', ' '];
-            if (blocked.includes(e.key)) {
-                e.preventDefault();
-            }
-        });
-    });
-
-    // Очистка строки после ввода/вставки
-    yInput.addEventListener('input', function() { sanitizeToSignedInteger(this); });
-    rInput.addEventListener('input', function() { sanitizeToDigits(this); });
-    yInput.addEventListener('paste', function() { setTimeout(() => sanitizeToSignedInteger(this), 0); });
-    rInput.addEventListener('paste', function() { setTimeout(() => sanitizeToDigits(this), 0); });
     const xRadios = document.querySelectorAll('input[name="x"]');
 
-    // Обновление графика при изменении R
-    rInput.addEventListener('input', function() {
-        const r = parseFloat(this.value);
-        if (!isNaN(r) && r >= 1 && r <= 4) {
-            drawGeometry(ctx, canvas.width, canvas.height, r);
-        }
-        persistFormState();
-    });
+    //Функция для ввода только цифр
+    function sanitizeToDigits(el) {
+        el.value = el.value.replace(/\D+/g, '');
+    }
+    //Функция для ввода только цифр с минусом
+    function sanitizeToSignedInt(el) {
+        const hasMinus = el.value.includes('-');
+        const digits = el.value.replace(/\D+/g, '');
+        el.value = hasMinus ? '-' + digits : digits;
+    }
 
-    // Обновление графика при изменении Y
-    yInput.addEventListener('input', function() {
-        const y = parseFloat(this.value);
-        const r = parseFloat(rInput.value);
-        const selectedX = document.querySelector('input[name="x"]:checked');
+    // Обработчики для числового ввода (со знаком для Y)
+    yInput.addEventListener('input', () => sanitizeToSignedInt(yInput));
+    yInput.addEventListener('paste', () => setTimeout(() => sanitizeToSignedInt(yInput), 0));
+
+    // Обработчики для числового ввода (без знака для R)
+    rInput.addEventListener('input', () => sanitizeToDigits(rInput));
+    rInput.addEventListener('paste', () => setTimeout(() => sanitizeToDigits(rInput), 0));
+
+    // Блокировка нежелательных символов при вводе
+    function blockInvalidKeys(e, allowMinus = false) {
+        const blocked = allowMinus ? ['+', 'e', 'E', '.', ',', ' '] : ['-', '+', 'e', 'E', '.', ',', ' '];
         
-        if (!isNaN(y) && !isNaN(r) && selectedX) {
-            const x = parseFloat(selectedX.value);
-            const isHit = checkHit(x, y, r);
-            drawGeometry(ctx, canvas.width, canvas.height, r, x, y, isHit);
+        if (blocked.includes(e.key)) {
+            e.preventDefault();
+            return;
         }
-        persistFormState();
-    });
-
-    // Обновление графика при изменении X
-    xRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            const x = parseFloat(this.value);
-            const y = parseFloat(yInput.value);
-            const r = parseFloat(rInput.value);
-            
-            if (!isNaN(y) && !isNaN(r)) {
-                const isHit = checkHit(x, y, r);
-                drawGeometry(ctx, canvas.width, canvas.height, r, x, y, isHit);
+        
+        if (allowMinus && e.key === '-') {
+            if (e.target.selectionStart !== 0 || e.target.value.includes('-')) {
+                e.preventDefault();
             }
-            persistFormState();
-        });
-    });
+        }
+    }
+
+    // Назначение обработчиков
+    yInput.addEventListener('keydown', (e) => blockInvalidKeys(e, true));
+    rInput.addEventListener('keydown', (e) => blockInvalidKeys(e, false));
 
     // Обработка отправки формы
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const formData = new FormData(form);
@@ -123,34 +68,18 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Проверка попадания в область
-        const startTime = performance.now();
-        const isHit = checkHit(x, y, r);
-        
+        // Отправка данных на сервер
+        const result = await sendToServerAndResponse(x, y, r);
+
         // Обновление canvas
-        drawGeometry(ctx, canvas.width, canvas.height, r, x, y, isHit);
-        const endTime = performance.now();
+        drawGeometry(ctx, canvas.width, canvas.height, r, x, y, result.isHit);
 
         // Добавление результата в таблицу
-        const currentTime = new Date().toLocaleString();
         attemptCounter += 1;
-        addResultRow(attemptCounter, x, y, r, endTime - startTime, currentTime, isHit);
-        // Сохранение результата в localStorage
-        const entry = {
-            attempt: attemptCounter,
-            x,
-            y,
-            r,
-            executionTimeMs: typeof (endTime - startTime) === 'number' ? Number((endTime - startTime).toFixed(2)) : (endTime - startTime),
-            time: currentTime,
-            result: isHit ? 'Попал' : 'Промазал'
-        };
-        persistedResults.push(entry);
-        saveResultsToStorage(persistedResults);
-        persistFormState();
+        addResultRow(attemptCounter, x, y, r, result.curentTime, result.execTime, result.isHit);
 
-        // Отправка данных на сервер
-        sendToServer(x, y, r, isHit);
+        // Показать текстовый результат
+        showResult(result.isHit);
     });
 
     // Валидация входных данных
@@ -165,13 +94,13 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // Проверка Y: только целые числа в диапазоне -3..5
+        // Проверка Y: только целые в диапазоне -3..5
         if (!Number.isInteger(y) || y < -3 || y > 5) {
             errorMessage += 'Y должно быть целым числом в диапазоне от -3 до 5<br>';
             isValid = false;
         }
 
-        // Проверка R: только целые числа 1..4
+        // Проверка R: только целые 1..4
         if (!Number.isInteger(r) || r < 1 || r > 4) {
             errorMessage += 'R должно быть целым числом в диапазоне от 1 до 4<br>';
             isValid = false;
@@ -184,56 +113,63 @@ document.addEventListener('DOMContentLoaded', function() {
         return isValid;
     }
 
-    // Проверка попадания в область с правильной логикой
-    function checkHit(x, y, r) {
-        // 1-й квадрант: прямоугольник (0 ≤ x ≤ R, 0 ≤ y ≤ R)
-        if (x >= 0 && y >= 0 && x <= r && y <= r) {
-            return true;
-        }
-        
-        // 2-й квадрант: треугольник (x ≤ 0, y ≥ 0, |x| + y ≤ R)
-        if (x <= 0 && y >= 0 && Math.abs(x) + y <= r) {
-            return true;
-        }
-        
-        // 3-й квадрант: четверть круга (x ≤ 0, y ≤ 0, x² + y² ≤ R²)
-        if (x <= 0 && y <= 0 && x * x + y * y <= r * r) {
-            return true;
-        }
-        
-        return false;
-    }
-
     // Отправка данных на сервер
-    function sendToServer(x, y, r, isHit) {
+    async function sendToServerAndResponse(x, y, r) {
         const formData = new FormData();
         formData.append('x', x);
         formData.append('y', y);
         formData.append('r', r);
-        formData.append('hit', isHit);
 
-        fetch('', {
+        const requestOptions = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: new URLSearchParams(formData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка сервера: ' + response.status);
+        }
+
+        try {
+            const response = await fetch("/fcgi-bin/server.jar", requestOptions);
+            const result = await response.json();
+
+            if (response.ok) {
+                return {
+                    x: x,
+                    y: y,
+                    r: r,
+                    execTime: `${result.time} ns`,
+                    curentTime: new Date(result.now).toLocaleString(),
+                    isHit: result.result
+                };
+            } else if (response.status === 400) {
+                return {
+                    x: x,
+                    y: y,
+                    r: r,
+                    execTime: "N/A",
+                    curentTime: new Date(result.now).toLocaleString(),
+                    isHit: `error: ${result.reason}`
+                };
+            } else {
+                return {
+                    x: x,
+                    y: y,
+                    r: r,
+                    execTime: "N/A",
+                    curentTime: "N/A",
+                    isHit: "error"
+                };
             }
-            // Сервер может вернуть HTML, но мы не перерисовываем весь документ
-            // чтобы сохранить таблицу результатов на странице.
-            return response.text();
-        })
-        .then(data => {
-            // Опционально можно отобразить сообщение об успешной отправке
-            // или распарсить ответ сервера при необходимости.
-        })
-        .catch(error => {
-            showError('Ошибка при отправке данных: ' + error.message);
-        });
+        } catch (error) {
+            return {
+                x: x,
+                y: y,
+                r: r,
+                execTime: "N/A",
+                curentTime: "N/A",
+                isHit: "error: " + error.message
+            };
+        }
     }
 
     // Отображение ошибок
@@ -241,7 +177,14 @@ document.addEventListener('DOMContentLoaded', function() {
         resultDiv.innerHTML = '<div class="error">' + message + '</div>';
     }
 
-    // Рисование геометрической области с улучшенной графикой
+    // Отображение результата
+    function showResult(isHit) {
+        const message = isHit ? 'Попадание!' : 'Промах!';
+        const className = isHit ? 'success' : 'error';
+        resultDiv.innerHTML = '<div class="' + className + '">' + message + '</div>';
+    }
+
+    // Рисование геометрической области
     function drawGeometry(ctx, width, height, r, x, y, isHit) {
         const centerX = width / 2;
         const centerY = height / 2;
@@ -286,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function drawGrid(ctx, width, height, centerX, centerY, scale) {
         ctx.strokeStyle = 'rgba(243, 156, 18, 0.1)';
         ctx.lineWidth = 1;
-        
+
         // Вертикальные линии
         for (let i = -5; i <= 5; i++) {
             const x = centerX + i * scale;
@@ -297,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ctx.stroke();
             }
         }
-        
+
         // Горизонтальные линии
         for (let i = -5; i <= 5; i++) {
             const y = centerY + i * scale;
@@ -316,26 +259,26 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.lineWidth = 3;
         ctx.shadowColor = 'rgba(243, 156, 18, 0.5)';
         ctx.shadowBlur = 5;
-        
+
         // Ось X
         ctx.beginPath();
         ctx.moveTo(20, centerY);
         ctx.lineTo(width - 20, centerY);
         ctx.stroke();
-        
+
         // Ось Y
         ctx.beginPath();
         ctx.moveTo(centerX, 20);
         ctx.lineTo(centerX, height - 20);
         ctx.stroke();
-        
+
         // Стрелки
         drawArrow(ctx, width - 20, centerY, 0);
         drawArrow(ctx, centerX, 20, 3*Math.PI / 2);
-        
+
         // Отметки на осях
         drawAxisMarks(ctx, width, height, centerX, centerY);
-        
+
         ctx.shadowBlur = 0;
     }
 
@@ -343,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function drawAxisMarks(ctx, width, height, centerX, centerY) {
         ctx.strokeStyle = '#f39c12';
         ctx.lineWidth = 2;
-        
+
         // Отметки на оси X
         for (let i = -4; i <= 4; i++) {
             if (i !== 0) {
@@ -379,10 +322,10 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x - arrowLength * Math.cos(angle - arrowAngle),
-                  y - arrowLength * Math.sin(angle - arrowAngle));
+            y - arrowLength * Math.sin(angle - arrowAngle));
         ctx.moveTo(x, y);
         ctx.lineTo(x - arrowLength * Math.cos(angle + arrowAngle),
-                  y - arrowLength * Math.sin(angle + arrowAngle));
+            y - arrowLength * Math.sin(angle + arrowAngle));
         ctx.stroke();
     }
 
@@ -441,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.beginPath();
         ctx.arc(centerX, centerY, scaledR, Math.PI / 2, Math.PI);
         ctx.stroke();
-        
+
         ctx.shadowBlur = 0;
     }
 
@@ -449,28 +392,28 @@ document.addEventListener('DOMContentLoaded', function() {
     function drawPoint(ctx, centerX, centerY, x, y, scale, isHit) {
         const pointX = centerX + x * scale;
         const pointY = centerY - y * scale;
-        
+
         // Внешнее свечение
         ctx.shadowColor = isHit ? 'rgba(39, 174, 96, 0.8)' : 'rgba(231, 76, 60, 0.8)';
         ctx.shadowBlur = 15;
-        
+
         // Основная точка
         ctx.fillStyle = isHit ? '#27ae60' : '#e74c3c';
         ctx.beginPath();
         ctx.arc(pointX, pointY, 6, 0, 2 * Math.PI);
         ctx.fill();
-        
+
         // Внутренняя точка
         ctx.shadowBlur = 0;
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(pointX, pointY, 3, 0, 2 * Math.PI);
         ctx.fill();
-        
+
         // Подпись координат с фоном
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(pointX + 10, pointY - 25, 80, 20);
-        
+
         ctx.fillStyle = '#f39c12';
         ctx.font = 'bold 12px Arial';
         ctx.textAlign = 'left';
@@ -483,17 +426,17 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.font = '10px Arial';
         ctx.fillStyle = '#e0e0e0';
         ctx.textAlign = 'center';
-        
+
         // Подписи R/2, R на осях
         ctx.fillStyle = '#f39c12';
         ctx.font = 'bold 10px Arial';
-        
+
         // R/2 и R на оси X
         ctx.fillText('R/2', centerX + scaledR/2, centerY + 15);
         ctx.fillText('R', centerX + scaledR, centerY + 15);
         ctx.fillText('-R/2', centerX - scaledR/2, centerY + 15);
         ctx.fillText('-R', centerX - scaledR, centerY + 15);
-        
+
         // R/2 и R на оси Y
         ctx.fillText('R/2', centerX - 15, centerY - scaledR/2);
         ctx.fillText('R', centerX - 15, centerY - scaledR);
@@ -502,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Добавление строки в таблицу результатов
-    function addResultRow(attempt, x, y, r, executionTimeMs, currentTime, isHit) {
+    function addResultRow(attempt, x, y, r, currentTime, executionTimeMs, isHit) {
         if (!resultsTable) return;
         const row = document.createElement('tr');
         const values = [
@@ -510,9 +453,9 @@ document.addEventListener('DOMContentLoaded', function() {
             x,
             y,
             r,
-            `${typeof executionTimeMs === 'number' ? executionTimeMs.toFixed(2) : executionTimeMs} ms`,
             currentTime,
-            isHit ? 'Попал' : 'Промазал'
+            `${typeof executionTimeMs === 'number' ? executionTimeMs.toFixed(2) + ' ms' : executionTimeMs}`,
+            isHit ? 'Попадание' : 'Промах'
         ];
         values.forEach(value => {
             const td = document.createElement('td');
@@ -521,77 +464,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         resultsTable.appendChild(row);
     }
-
-    // Рендер таблицы из массива записей
-    function renderResultsTable(entries) {
-        // Удаляем все строки кроме заголовка
-        while (resultsTable.rows.length > 1) {
-            resultsTable.deleteRow(1);
-        }
-        entries.forEach(e => {
-            addResultRow(e.attempt, e.x, e.y, e.r, e.executionTimeMs, e.time, e.result === 'Попал');
-        });
-    }
-
-    // Работа с localStorage
-    function loadResultsFromStorage() {
-        localStorage.clear();
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return [];
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) return parsed;
-            return [];
-        } catch (_) {
-            return [];
-        }
-    }
-
-    function saveResultsToStorage(entries) {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-        } catch (_) {
-            // ignore quota or serialization errors silently
-        }
-    }
-
-    // Сохранение и восстановление состояния формы и рисунка
-    function persistFormState() {
-        try {
-            const selectedX = document.querySelector('input[name="x"]:checked');
-            const x = selectedX ? selectedX.value : null;
-            const y = yInput.value;
-            const r = rInput.value;
-            const state = { x, y, r };
-            localStorage.setItem(FORM_KEY, JSON.stringify(state));
-        } catch (_) { /* ignore */ }
-    }
-
-    (function restoreFormStateAndRedraw() {
-        try {
-            const raw = localStorage.getItem(FORM_KEY);
-            if (!raw) return;
-            const state = JSON.parse(raw);
-            if (!state) return;
-            if (typeof state.y === 'string') {
-                yInput.value = state.y;
-            }
-            if (typeof state.r === 'string') {
-                rInput.value = state.r;
-            }
-            if (typeof state.x === 'string') {
-                const radio = document.querySelector('input[name="x"][value="' + state.x + '"]');
-                if (radio) radio.checked = true;
-            }
-            const xVal = state.x != null ? parseFloat(state.x) : undefined;
-            const yVal = state.y != null ? parseFloat(state.y) : undefined;
-            const rVal = state.r != null ? parseFloat(state.r) : undefined;
-            if (!isNaN(rVal)) {
-                const hit = (!isNaN(xVal) && !isNaN(yVal)) ? checkHit(xVal, yVal, rVal) : undefined;
-                drawGeometry(ctx, canvas.width, canvas.height, rVal, xVal, yVal, hit);
-            }
-        } catch (_) {
-            // ignore
-        }
-    })();
 });

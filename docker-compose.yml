@@ -1,6 +1,8 @@
 services:
   httpd:
-    build: httpd
+    build:
+      context: .
+      dockerfile: httpd/Dockerfile
     container_name: web-java-fastcgi-httpd
     ports:
       - "8800:80"
