@@ -2,15 +2,13 @@ package ru.itmo.se.web.fastcgi;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 class Params {
     private final float x;
-    private final int y;
-    private final int r;
+    private final float y;
+    private final float r;
 
     public Params(String query) throws ValidationException {
         if (query == null || query.isEmpty()) {
@@ -19,8 +17,8 @@ class Params {
         var params = splitQuery(query);
         validateParams(params);
         this.x = Float.parseFloat(params.get("x"));
-        this.y = Integer.parseInt(params.get("y"));
-        this.r = Integer.parseInt(params.get("r"));
+        this.y = Float.parseFloat(params.get("y"));
+        this.r = Float.parseFloat(params.get("r"));
     }
 
     private static Map<String, String> splitQuery(String query) {
@@ -38,46 +36,53 @@ class Params {
 
 
     private static void validateParams(Map<String, String> params) throws ValidationException {
+        var errors = new ArrayList<String>();
+
         var x = params.get("x");
         if (x == null || x.isEmpty()) {
-            throw new ValidationException("x is invalid");
-        }
-
-        try {
-            var xx = Float.parseFloat(x);
-            if (xx < -2 || xx > 2) {
-                throw new ValidationException("x has forbidden value");
+            errors.add("x может быть пустым");
+        } else {
+            try {
+                ArrayList<Float> validateX = new ArrayList<Float>(Arrays.asList(-2.0f, -1.5f, -1.0f, -0.5f, 0.0f, 0.5f, 1.0f, 1.5f, 2.0f));
+                var xx = Float.parseFloat(x);
+                if (!validateX.contains(xx)) {
+                    errors.add("x не может принимать такие значения");
+                }
+            } catch (NumberFormatException e) {
+                errors.add("x не число");
             }
-        } catch (NumberFormatException e) {
-            throw new ValidationException("x is not a number");
         }
 
         var y = params.get("y");
         if (y == null || y.isEmpty()) {
-            throw new ValidationException("y is invalid");
-        }
-
-        try {
-            var yy = Integer.parseInt(y);
-            if (yy < -3 || yy > 5) {
-                throw new ValidationException("y has forbidden value");
+            errors.add("y не может быть пустым");
+        } else {
+            try {
+                var yy = Float.parseFloat(y);
+                if (yy < -3 || yy > 5) {
+                    errors.add("y не может принимать такие значения");
+                }
+            } catch (NumberFormatException e) {
+                errors.add("y не число");
             }
-        } catch (NumberFormatException e) {
-            throw new ValidationException("y is not a number");
         }
 
         var r = params.get("r");
         if (r == null || r.isEmpty()) {
-            throw new ValidationException("r is invalid");
+            errors.add("r не может быть пустым");
+        } else {
+            try {
+                var rr = Float.parseFloat(r);
+                if (rr < 1 || rr > 4) {
+                    errors.add("r не может принимать такие значения");
+                }
+            } catch (NumberFormatException e) {
+                errors.add("r не число");
+            }
         }
 
-        try {
-            var rr = Integer.parseInt(r);
-            if (rr < 1 || rr > 4) {
-                throw new ValidationException("r has forbidden value");
-            }
-        } catch (NumberFormatException e) {
-            throw new ValidationException("r is not a number");
+        if (!errors.isEmpty()) {
+            throw new ValidationException(String.join("<br>", errors));
         }
     }
 
@@ -86,11 +91,11 @@ class Params {
         return x;
     }
 
-    public int getY() {
+    public float getY() {
         return y;
     }
 
-    public int getR() {
+    public float getR() {
         return r;
     }
 }

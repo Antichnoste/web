@@ -1,0 +1,7 @@
+/* Базовая нормализация отступов и box-sizing для всего документа */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+

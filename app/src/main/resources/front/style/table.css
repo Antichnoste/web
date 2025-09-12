@@ -1,0 +1,67 @@
+/* Таблица результатов, sticky заголовок и состояния строк */
+.result_table {
+    margin-top: 24px;
+    background-color: #2d3748;
+    border-radius: 12px;
+    border: 1px solid #4a5568;
+    overflow: hidden;
+    padding: 12px;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.result_table table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: rgba(0,0,0,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#result-table tr:first-child th {
+    position: sticky;
+    top: 0;
+    background-color: #2c3e50;
+    color: #f8f8f8;
+    text-align: left;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+#result-table td {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #e0e0e0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+#result-table tr:nth-child(even) td {
+    background: rgba(255,255,255,0.03);
+}
+
+#result-table tr:hover td {
+    background: rgba(243, 156, 18, 0.08);
+    transition: background 0.2s ease;
+}
+
+#result-table td:nth-child(1),
+#result-table td:nth-child(4),
+#result-table td:nth-child(5) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+#result-table td:nth-child(6) {
+    white-space: nowrap;
+}
+
+#result-table td:last-child {
+    font-weight: 700;
+}
+

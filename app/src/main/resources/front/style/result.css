@@ -1,0 +1,12 @@
+/* Блок отображения текстового результата под формой */
+.result {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #2d3748;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 18px;
+    color: #e0e0e0;
+    border-left: 5px solid #f39c12;
+}
+

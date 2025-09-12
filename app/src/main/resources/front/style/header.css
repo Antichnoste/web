@@ -1,0 +1,19 @@
+/* Оформление шапки страницы и наведение на заголовок */
+.header {
+    font-family: fantasy, 'Comic Sans MS', cursive;
+    color: #f39c12;
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 30px;
+    background-color: #2c3e50;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border: 2px solid #f39c12;
+}
+
+h1:hover {
+    color: #f39c12;
+    transition: color 0.2s ease;
+}
+

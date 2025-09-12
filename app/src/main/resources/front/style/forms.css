@@ -1,0 +1,62 @@
+/* Поля ввода, подписи, радио-группа и состояния фокуса */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #e0e0e0;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.radio-group input[type="radio"] {
+    margin-right: 8px;
+    margin-bottom: 5px;
+}
+
+.radio-group label {
+    display: inline-block;
+    margin-right: 15px;
+    font-weight: normal;
+    cursor: pointer;
+    color: #e0e0e0;
+    transition: color 0.2s ease;
+}
+
+.radio-group label:hover {
+    color: #f39c12;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #4a5568;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    color: #e0e0e0;
+    border-color: #f39c12;
+    background: #2d3748;
+}
+
+input[type="radio"] {
+    accent-color: #f39c12;
+}
+
+.form-group {
+    margin-bottom: 2%;
+}
+
+.radio-group {
+    margin-bottom: 2%;
+}
+
+input:focus {
+    outline: none;
+    border-color: #f39c12;
+    box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.2);
+    background-color: #2f3b4a;
+}
+

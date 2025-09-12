@@ -1,0 +1,13 @@
+/* Общие стили для html и body, базовая палитра и типографика */
+html {
+    background-color: #16213e;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #16213e;
+    min-height: 100vh;
+    padding: 20px;
+    color: #e0e0e0;
+}
+

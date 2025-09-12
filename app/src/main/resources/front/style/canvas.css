@@ -1,0 +1,18 @@
+/* Контейнер холста и оформление самого canvas */
+.canvas-container {
+    text-align: center;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #1a202c;
+    border-radius: 15px;
+    border: 2px solid #4a5568;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+canvas {
+    border: 3px solid #f39c12;
+    border-radius: 15px;
+    background-color: #1a202c;
+    margin: 0 auto;
+}
+

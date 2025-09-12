@@ -85,7 +85,7 @@ public class Server {
         }
     }
 
-    private static boolean calculate(float  x, int y, int r) {
+    private static boolean calculate(float  x, float y, float r) {
         if (x >= 0 && y >= 0 && x <= r && y <= r) {
             return true;
         }
