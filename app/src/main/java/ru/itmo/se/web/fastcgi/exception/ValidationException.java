@@ -1,6 +1,9 @@
-package ru.itmo.se.web.fastcgi;
+package ru.itmo.se.web.fastcgi.exception;
 
-class ValidationException extends Exception {
+/**
+ * Класс ошибки валидации данных
+ */
+public class ValidationException extends Exception {
     public ValidationException(String message) {
         super(message);
     }

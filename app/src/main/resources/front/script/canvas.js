@@ -201,14 +201,12 @@ function drawLabels(ctx, centerX, centerY, scaledR) {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#f39c12';
     ctx.font = 'bold 10px Arial';
-    ctx.fillText('R/2', centerX + scaledR/2, centerY + 15);
+    ctx.fillText('R/2', centerX + scaledR / 2, centerY + 15);
     ctx.fillText('R', centerX + scaledR, centerY + 15);
-    ctx.fillText('-R/2', centerX - scaledR/2, centerY + 15);
+    ctx.fillText('-R/2', centerX - scaledR / 2, centerY + 15);
     ctx.fillText('-R', centerX - scaledR, centerY + 15);
-    ctx.fillText('R/2', centerX - 15, centerY - scaledR/2);
+    ctx.fillText('R/2', centerX - 15, centerY - scaledR / 2);
     ctx.fillText('R', centerX - 15, centerY - scaledR);
-    ctx.fillText('-R/2', centerX - 15, centerY + scaledR/2);
+    ctx.fillText('-R/2', centerX - 15, centerY + scaledR / 2);
     ctx.fillText('-R', centerX - 15, centerY + scaledR);
 }
-
-
