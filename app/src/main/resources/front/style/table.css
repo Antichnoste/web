@@ -3,7 +3,7 @@
     margin-top: 24px;
     background-color: #2d3748;
     border-radius: 12px;
-    border: 1px solid #4a5568;
+    border: 1px solid #68654a;
     overflow: hidden;
     padding: 12px;
     max-height: 280px;
@@ -31,6 +31,13 @@
     font-size: 12px;
     padding: 14px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
+    border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+#result-table tr:first-child th:nth-child(2),
+#result-table tr:first-child th:nth-child(3),
+#result-table tr:first-child th:nth-child(4) {
+    text-align: center;
 }
 
 #result-table td {
@@ -52,12 +59,27 @@
 #result-table td:nth-child(1),
 #result-table td:nth-child(4),
 #result-table td:nth-child(5) {
-    text-align: right;
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
+#result-table td:nth-child(1) {
+    text-align: left;
+}
+
+#result-table td:nth-child(2),
+#result-table td:nth-child(3),
+#result-table td:nth-child(4){
+    text-align: center;
+}
+
+#result-table td:nth-child(5){
+    text-align: right;
+}
+
+
 #result-table td:nth-child(6) {
+    text-align: right;
     white-space: nowrap;
 }
 

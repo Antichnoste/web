@@ -60,6 +60,7 @@ public class Server {
                         throw new ValidationException("Missing query string");
                     }
 
+
                     var bodyBytes = System.in.readNBytes(contentLength);
                     rawQuery = new String(bodyBytes, StandardCharsets.UTF_8);
                 } else {

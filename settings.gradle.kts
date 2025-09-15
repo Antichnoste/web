@@ -8,6 +8,6 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
-rootProject.name = "web-java-fastcgi"
+rootProject.name = "web1"
 include("app")
 include("fastcgi-lib")

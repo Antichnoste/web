@@ -16,7 +16,7 @@ export async function sendToServerAndGetResponse(x, y, r) {
 
     try {
         const response = await fetch("/fcgi-bin/server.jar", requestOptions);
-        const result = await response.json();
+        const result = await response.json(); // возвращаем json с сервера
 
         if (response.ok) {
             return {
