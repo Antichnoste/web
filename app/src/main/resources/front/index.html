@@ -17,8 +17,6 @@
     <link rel="stylesheet" href="style/result.css">
     <link rel="stylesheet" href="style/alerts.css">
     <link rel="stylesheet" href="style/table.css">
-    <!-- Это издевальтество так подключать стили-->
-    <style></style>
 </head>
 <body>
     <div class="header">
@@ -51,9 +49,6 @@
                                 <input type="radio" id="x0" name="x" value="0">
                                 <label for="x0">0</label>
                                 
-                                <input type="radio" id="x0.5" name="x" value="0.5">
-                                <label for="x0.5">0.5</label>
-                                
                                 <input type="radio" id="x1" name="x" value="1">
                                 <label for="x1">1</label>
                                 
@@ -70,7 +65,7 @@
                             <input type="text" id="y" name="y" placeholder="Введите Y" inputmode="decimal" pattern="-?\d*(\.\d+)?" required>
                         </div>
 
-        <div class="form-group">
+                        <div class="form-group">
                             <label for="r">Радиус R (от 1 до 4):</label>
                             <input type="text" id="r" name="r" placeholder="Введите R" inputmode="decimal" pattern="\d*(\.\d+)?" required>
                         </div>
@@ -88,7 +83,7 @@
         </div>
 
     <section class="result_table">
-        <table id="result-table">
+            <table id="result-table">
             <tr>
                 <th>#</th>
                 <th>x</th>

@@ -65,7 +65,7 @@ export function addResultRow(table, attempt, x, y, r, currentTime, executionTime
         td.textContent = String(value);
         row.appendChild(td);
     });
-    table.appendChild(row);
+    table.insertBefore(row, table.children[1]);
 }
 
 

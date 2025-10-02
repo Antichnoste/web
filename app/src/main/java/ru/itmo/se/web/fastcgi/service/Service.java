@@ -4,7 +4,7 @@ import ru.itmo.se.web.fastcgi.exception.ValidationException;
 import ru.itmo.se.web.fastcgi.model.AttemptResult;
 import ru.itmo.se.web.fastcgi.model.Request;
 import ru.itmo.se.web.fastcgi.model.Response;
-import ru.itmo.se.web.fastcgi.repository.Repository;
+import ru.itmo.se.web.fastcgi.model.repository.Repository;
 import ru.itmo.se.web.fastcgi.validation.Validator;
 
 import java.time.Instant;
@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 /**
  * Основная логика
  */
-public class Service {
+public class    Service {
     private final Repository repository = new Repository();
     private final Validator validator = new Validator();
 

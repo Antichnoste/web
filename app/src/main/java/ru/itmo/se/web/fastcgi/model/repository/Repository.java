@@ -1,4 +1,4 @@
-package ru.itmo.se.web.fastcgi.repository;
+package ru.itmo.se.web.fastcgi.model.repository;
 
 import ru.itmo.se.web.fastcgi.model.AttemptResult;
 
