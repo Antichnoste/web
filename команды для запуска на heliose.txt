@@ -1,0 +1,5 @@
+ssh -p 2222 -L 8080:localhost:11623 s466113@helios.cs.ifmo.ru
+nsIY}5379
+cd /home/studs/s466113/web/httpd-root/fcgi-bin
+httpd -f ~/web/httpd-root/conf/httpd-conf.conf -k start
+java -jar -DFCGI_PORT=11624 ~/web/httpd-root/fcgi-bin/server.jar
